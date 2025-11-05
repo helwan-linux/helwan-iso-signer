@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Helwan ISO Signer
+Comment=A professional GUI tool for signing ISO files and generating release data (SHA/GPG).
+Exec=/usr/local/bin/helwan-signer  # مسار ملف التشغيل (انظر الإعداد أدناه)
+Icon=helwan-iso-signer             # اسم الأيقونة (بدون امتداد)
+Terminal=false                     # لا يشغل في نافذة طرفية
+Type=Application                   # نوع الملف هو تطبيق
+Categories=Utility;Security;Development;
+StartupNotify=true                 # يعطي تنبيه عند التشغيل
