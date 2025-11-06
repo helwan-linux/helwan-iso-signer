@@ -1,7 +1,7 @@
 pkgname=hel-iso-signer
 _pkgname=helwan-iso-signer
 pkgver=1
-pkgrel=0.1
+pkgrel=1
 pkgdesc="أداة رسومية احترافية لتوقيع ملفات ISO وتوليد بيانات الإصدار (SHA/GPG)."
 arch=('any')
 url="https://github.com/helwan-linux/helwan-iso-signer"
@@ -9,10 +9,8 @@ license=('GPL3')
 depends=('python' 'python-pyqt5' 'gnupg')
 makedepends=('git')
 
-# المصدر: Git repo
 source=("git+https://github.com/helwan-linux/helwan-iso-signer.git")
 sha256sums=('SKIP')
-
 
 package() {
     _app_dir="/usr/lib/${pkgname}"
@@ -30,13 +28,14 @@ package() {
     install -Dm644 "${_git_src_dir}/signer_icon.png" "${pkgdir}/${_app_dir}/signer_icon.png"
     install -Dm644 "${_git_src_dir}/signer_icon.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/${_pkgname}.png"
 
-    # ملف التشغيل في /usr/bin
+    # ملف التشغيل في /usr/bin لضمان عمله من القوائم
     mkdir -p "${pkgdir}/usr/bin/"
-    cat > "${pkgdir}/usr/bin/${_pkgname}" << EOT
+    cat > "${pkgdir}/usr/bin/hel-iso-signer" << EOT
 #!/bin/bash
-python3 -B /usr/lib/${_pkgname}/signer_gui.py "\$@"
+cd /usr/lib/${pkgname}
+python3 -B signer_gui.py "\$@"
 EOT
-    chmod 755 "${pkgdir}/usr/bin/${_pkgname}"
+    chmod 755 "${pkgdir}/usr/bin/hel-iso-signer"
 
     # ملف Desktop Entry
     mkdir -p "${pkgdir}/usr/share/applications/"
@@ -44,7 +43,7 @@ EOT
 [Desktop Entry]
 Name=Helwan ISO Signer
 Comment=A professional GUI tool for signing ISO files and generating release data (SHA/GPG).
-Exec=${_pkgname}
+Exec=hel-iso-signer
 Icon=${_pkgname}
 Terminal=false
 Type=Application
