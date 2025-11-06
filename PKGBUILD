@@ -1,84 +1,58 @@
-# -----------------------------------------------------------
-# 🧩 Helwan ISO Signer — PKGBUILD (Educational Version)
-# Written for training and professional packaging on Arch / Helwan Linux
-# -----------------------------------------------------------
-
-# اسم الحزمة زي ما هي هتظهر في pacman
 pkgname=helwan-iso-signer
-
-# رقم الإصدار الرسمي
-pkgver=1.0
-
-# رقم المراجعة داخل نفس الإصدار (بيزيد لو عدلت الحزمة بدون تغيير النسخة)
+_pkgname=helwan-iso-signer
+pkgver=r20251106.88855af
 pkgrel=1
-
-# وصف مختصر للحزمة
-pkgdesc="A professional GUI tool for signing ISO files and generating release data (SHA/GPG)"
-
-# المعمارية المدعومة — 'any' تعني أن الحزمة مستقلة عن المعمارية (زي سكربت Python)
+pkgdesc="أداة رسومية احترافية لتوقيع ملفات ISO وتوليد بيانات الإصدار (SHA/GPG)."
 arch=('any')
-
-# رابط المشروع أو صفحة GitHub
 url="https://github.com/helwan-linux/helwan-iso-signer"
-
-# نوع الترخيص
-license=('MIT')
-
-# الحزم اللي لازم تكون موجودة عشان البرنامج يشتغل
+license=('GPL3')
 depends=('python' 'python-pyqt5' 'gnupg')
+makedepends=('git')
 
-# مصدر الكود (ملف tar.gz من GitHub Release أو Tag)
-# $pkgver بيتم دمجه تلقائي في الرابط
-source=("$url/archive/refs/tags/v$pkgver.tar.gz")
-
-# بصمة التحقق من الملف — ممكن مؤقتًا نخليها SKIP أثناء التطوير
+# المصدر: Git repo
+source=("git+https://github.com/helwan-linux/helwan-iso-signer.git")
 sha256sums=('SKIP')
 
-# -----------------------------------------------------------
-# 🏗️ قسم بناء الحزمة
-# -----------------------------------------------------------
-
-# دالة package() هي الأساسية لأنها بتحدد ما الذي سيوضع داخل الحزمة النهائية
-package() {
-
-    # الانتقال إلى مجلد الكود داخل بيئة البناء
-    # $srcdir هو المسار المؤقت اللي makepkg يفك فيه الملفات
-    cd "$srcdir/$pkgname-$pkgver"
-
-    # -------------------------------------------------------
-    # تثبيت الملفات إلى مجلد النظام الافتراضي داخل الحزمة
-    # -------------------------------------------------------
-
-    # 🟩 الملف التنفيذي الرئيسي
-    # نستخدم -D لإنشاء المجلدات تلقائيًا و -m755 للصلاحيات التنفيذية
-    install -Dm755 signer_gui.py "$pkgdir/usr/bin/helwan-signer"
-
-    # 🟩 أيقونة البرنامج (تُستخدم في القوائم)
-    install -Dm644 signer_icon.png \
-        "$pkgdir/usr/share/icons/hicolor/256x256/apps/helwan-iso-signer.png"
-
-    # 🟩 ملف .desktop لظهور التطبيق في قائمة البرامج
-    install -Dm644 helwan-iso-signer.desktop \
-        "$pkgdir/usr/share/applications/helwan-iso-signer.desktop"
-
-    # 🟩 وثائق البرنامج (تظهر في /usr/share/doc)
-    install -Dm644 README.md \
-        "$pkgdir/usr/share/doc/$pkgname/README.md"
+pkgver() {
+    cd "${srcdir}/${_pkgname}"
+    printf "r%s.%s" "$(git log -1 --format=%cd --date=format:%Y%m%d)" "$(git rev-parse --short HEAD)"
 }
 
-# -----------------------------------------------------------
-# 💡 نصائح للمطور:
-# -----------------------------------------------------------
-# 1. بعد الانتهاء، شغل:
-#       makepkg -si
-#    لبناء وتثبيت الحزمة مباشرة.
-#
-# 2. لتحديث بصمات التحقق بعد كل إصدار جديد:
-#       updpkgsums
-#
-# 3. لإنشاء ملف معلومات AUR (.SRCINFO):
-#       makepkg --printsrcinfo > .SRCINFO
-#
-# 4. للتحقق من جودة الحزمة:
-#       namcap PKGBUILD
-# -----------------------------------------------------------
+package() {
+    _app_dir="/usr/lib/${pkgname}"
+    _git_src_dir="${srcdir}/${_pkgname}"
+
+    mkdir -p "${pkgdir}/${_app_dir}"
+
+    # نسخ ملفات Python والموارد
+    install -m 644 "${_git_src_dir}/signer_gui.py" "${pkgdir}/${_app_dir}/"
+    install -m 644 "${_git_src_dir}/signer_logic.py" "${pkgdir}/${_app_dir}/"
+    install -m 644 "${_git_src_dir}/splash_screen.py" "${pkgdir}/${_app_dir}/"
+    install -m 644 "${_git_src_dir}/helwan_style.qss" "${pkgdir}/${_app_dir}/"
+
+    # نسخ الأيقونة
+    install -Dm644 "${_git_src_dir}/signer_icon.png" "${pkgdir}/${_app_dir}/signer_icon.png"
+    install -Dm644 "${_git_src_dir}/signer_icon.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/${_pkgname}.png"
+
+    # ملف التشغيل في /usr/bin
+    mkdir -p "${pkgdir}/usr/bin/"
+    cat > "${pkgdir}/usr/bin/${_pkgname}" << EOT
+#!/bin/bash
+python3 -B /usr/lib/${_pkgname}/signer_gui.py "\$@"
+EOT
+    chmod 755 "${pkgdir}/usr/bin/${_pkgname}"
+
+    # ملف Desktop Entry
+    mkdir -p "${pkgdir}/usr/share/applications/"
+    cat > "${pkgdir}/usr/share/applications/${_pkgname}.desktop" << EOT
+[Desktop Entry]
+Name=Helwan ISO Signer
+Comment=A professional GUI tool for signing ISO files and generating release data (SHA/GPG).
+Exec=${_pkgname}
+Icon=${_pkgname}
+Terminal=false
+Type=Application
+Categories=Utility;Security;Development;
+StartupNotify=true
+EOT
+}
