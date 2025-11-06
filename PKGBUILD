@@ -1,7 +1,7 @@
-pkgname=helwan-iso-signer
+pkgname=hel-iso-signer
 _pkgname=helwan-iso-signer
-pkgver=r20251106.88855af
-pkgrel=1
+pkgver=1
+pkgrel=0.1
 pkgdesc="أداة رسومية احترافية لتوقيع ملفات ISO وتوليد بيانات الإصدار (SHA/GPG)."
 arch=('any')
 url="https://github.com/helwan-linux/helwan-iso-signer"
