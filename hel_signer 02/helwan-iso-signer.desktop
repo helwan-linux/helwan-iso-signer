@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Helwan ISO Signer
-Comment=A professional GUI tool for signing ISO files and generating release data (SHA/GPG).
-Exec=python3 /opt/hel_signer/signer_gui.py
-Icon=helwan-iso-signer
-Terminal=false
-Type=Application
-Categories=Utility;Security;Development;
-StartupNotify=true
