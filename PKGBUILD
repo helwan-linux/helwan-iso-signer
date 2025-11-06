@@ -13,10 +13,6 @@ makedepends=('git')
 source=("git+https://github.com/helwan-linux/helwan-iso-signer.git")
 sha256sums=('SKIP')
 
-pkgver() {
-    cd "${srcdir}/${_pkgname}"
-    printf "r%s.%s" "$(git log -1 --format=%cd --date=format:%Y%m%d)" "$(git rev-parse --short HEAD)"
-}
 
 package() {
     _app_dir="/usr/lib/${pkgname}"
